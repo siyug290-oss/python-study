@@ -12,14 +12,22 @@ while True:
 
     if choice == "1":
         new = input("你想添加什么")
-        todos.append(new)
-        print("添加成功")
+        if new.strip() == "":
+            print("不能输入空白")
+        
+        else: 
+            todos.append(new)
+            print("添加成功")
 
     elif choice == "2":
         if len(todos) == 0:
             print("还没有待办")
         else:
-            num = int(input("要删除第几条？"))
+            try:
+                num = int(input("要删除第几条？"))
+            except ValueError:
+                print("请输入数字")
+                continue
             if 1<= num <= len(todos):
                 todos.pop(num-1)
                 print("已删除")
