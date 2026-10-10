@@ -30,7 +30,7 @@ class TodoList:
             for i, t in enumerate(self.items,1):
                 print(f"{i}.{t}")
 
-    def load(self,):
+    def load(self):
         try:
             with open(self.filename,"r",encoding="utf-8")as f:
                 self.items = json.load(f)
