@@ -12,15 +12,18 @@ class TodoList:
             self.items.append(content)
             self.save()
 
-    def remove(self,index:int)->None:
+    def remove(self,index:int)->bool:
         if len(self.items) == 0:
             print("还没有待办")
+            return False
         else:
             if 1 <= index <= len(self.items):
                 self.items.pop(index-1)
                 self.save()
+                return True
             else:
                 print("请输入有效数字")
+                return False
 
     def show (self)->None:
         if len(self.items) == 0:

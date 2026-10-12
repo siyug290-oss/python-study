@@ -25,3 +25,13 @@ def test_remove_zero(tmp_path):
     t.add("买菜")
     t.remove(0)
     assert t.count() == 1
+
+def test_remove_out_of_range_returns_false(tmp_path):
+    t = TodoList(tmp_path / "todo.json")
+    t.add("买菜")
+    assert t.remove(99) is False
+
+def test_remove_ok_returns_true(tmp_path):
+    t = TodoList(tmp_path / "todo.json")
+    t.add("买菜")
+    assert t.remove(1) is True
