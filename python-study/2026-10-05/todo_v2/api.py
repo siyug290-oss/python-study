@@ -32,6 +32,19 @@ def delete_todo(index:int):
         return {"message": "已删除", "todos": t.items}
     else:
         return{"message":"序号不存在，没有删除","todos":t.items}
-    
 
+@app.post("/todos/{index}/done")
+def done_todo(index:int):
+    t.load()
+    if t.done(index):
+        return{"message":"已标记","todos": t.items}
+    else:
+        return{"message":"序号不存在,没有标记","todos":t.items}
 
+@app.post("/todos/{index}/undone")
+def undone_todos(index:int):
+    t.load()
+    if t.undone(index):
+        return{"message":"已取消标记","todos": t.items}
+    else:
+        return{"message":"序号不存在，没有取消标记","todos": t.items}
