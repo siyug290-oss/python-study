@@ -1,16 +1,26 @@
-import json
+import sqlite3
 class TodoList:
-    def __init__(self,filename : str ="todo.json")->None:
-        self.filename:str = filename
+    def __init__(self,db : str ="todo.db")->None:
+        self.conn = sqlite3.connect(db)
+        self.conn.execute("""
+                  CREATE TABLE IF NOT EXISTS todos(
+                  id INTEGER PRIMARY KEY AUTOINCREMENT,
+                  content TEXT NOT NULL,
+                  done INTEGER NOT NULL DEFAULT 0)
+                   """ )
+        self.conn.commit()
         self.items:list[dict] = []
         self.load()
 
     def add(self,content : str)->None:
         if content.strip() == "":
             print("不能输入空白内容")
-        else:
-            self.items.append({"content":content,"done":False})
-            self.save()
+            return
+        self.conn.execute(
+            "INSERT INTO todos (content, done) VALUES (?, 0)", (content,)
+        )
+        self.conn.commit()
+        self.load()
 
     def remove(self,index:int)->bool:
         if len(self.items) == 0:
@@ -18,8 +28,10 @@ class TodoList:
             return False
         else:
             if 1 <= index <= len(self.items):
-                self.items.pop(index-1)
-                self.save()
+                todo_id = self.items[index-1]["id"]
+                self.conn.execute("DELETE FROM todos WHERE id = ?", (todo_id,))
+                self.conn.commit()
+                self.load()
                 return True
             else:
                 print("请输入有效数字")
@@ -37,16 +49,12 @@ class TodoList:
                 
 
     def load(self)->None:
-        try:
-            with open(self.filename,"r",encoding="utf-8")as f:
-                self.items = json.load(f)
-        except FileNotFoundError:
-            self.items =[]
+        rows = self.conn.execute("SELECT id ,content , done FROM todos ORDER BY id")
+        self.items = [
+            {"id": r[0], "content": r[1], "done": bool(r[2])}
+            for r in rows
+        ]
 
-    def save(self)->None:
-        with open (self.filename,"w",encoding="utf-8")as f:
-            json.dump(self.items,f,ensure_ascii=False,indent=2)
-            
     def count(self)->int:
         return len(self.items)
 
@@ -56,8 +64,10 @@ class TodoList:
             return False
         else:
             if 1<= index <= len(self.items):
-                self.items[index-1]["done"]=True
-                self.save()
+                todo_id = self.items[index-1]["id"]
+                self.conn.execute("UPDATE todos SET done = 1 WHERE id = ?", (todo_id,))
+                self.conn.commit()
+                self.load()
                 return True
             else:
                 print("输入的数字不存在，请重输")
@@ -69,7 +79,10 @@ class TodoList:
             return False
         else:
             if 1<= index <=len(self.items):
-                self.items[index-1]["done"]=False
+                todo_id = self.items[index-1]["id"]
+                self.conn.execute("UPDATE todos SET done = 0 WHERE id = ?", (todo_id,))
+                self.conn.commit()
+                self.load()
                 return True
             else:
                 print("请输入有效数字")
